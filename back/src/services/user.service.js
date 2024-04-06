@@ -6,7 +6,7 @@ const {hashPassword} = require('../utils/hash');
 // Get all users paginated
 exports.getAllUsers = (page, size) => {
     // get name and email only
-    const users = User.find({}, 'name email')
+    const users = User.find({}, 'name email role')
         .skip(page * size)
         .limit(size);
     return users;
@@ -15,7 +15,7 @@ exports.getAllUsers = (page, size) => {
 // Get user by id
 exports.getUserById = async (userId) => {
     // get name and email only
-    const user = await User.findById(userId, 'name email').exec();
+    const user = await User.findById(userId, 'name email role').exec();
     if (!user) {
         throw new NotFoundError('User not found');
     }
