@@ -3,7 +3,7 @@ import axios from "axios";
 
 const HomePage = () => {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
-    const [idUser, setIdUser] = useState(null);
+    const [user, setUser] = useState(null);
 
     useEffect(() => {
         // Check if token is present in localStorage
@@ -18,7 +18,7 @@ const HomePage = () => {
             })
                 .then(res => {
                     // Token is valid
-                    setIdUser(res.data.user._id);
+                    setUser(res.data.user);
                     setIsAuthenticated(true);
                 })
                 .catch(err => {
@@ -52,7 +52,7 @@ const HomePage = () => {
             <h1>Home Page</h1>
             {isAuthenticated ? (
                 <div>
-                    <h2>Hello, user with id {idUser}</h2>
+                    <h2>Hello, {user.name}</h2>
                     <button onClick={handleLogout}>Logout</button>
                 </div>
             ) : (
