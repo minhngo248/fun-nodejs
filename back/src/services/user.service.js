@@ -26,7 +26,7 @@ exports.getUserById = async (userId) => {
 exports.createUser = async (name, email, password) => {
     if (!name || !email || !password) {
         return new Promise((resolve, reject) => {
-            reject(new BadRequestError('Missing required fields'));
+            reject(new BadRequestError('Missing required fields: name, email, password.'));
         });
     }
 
@@ -42,7 +42,8 @@ exports.createUser = async (name, email, password) => {
     const newUser = new User({
         name: name,
         email: email,
-        password: hashedPassword
+        password: hashedPassword,
+        role: 'USER'
     });
     // return _id of new user
     newUser.save().then(r => console.log("User created successfully id: " + r._id));
