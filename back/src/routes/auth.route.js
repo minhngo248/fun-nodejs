@@ -9,6 +9,12 @@ router.post('/', function(req, res, next) {
         .catch(err => res.status(err.status).json({ message: err.message }));
 });
 
+/* GET logout */
+router.get('/logout', function(req, res, next) {
+    res.status(200).json({ message: 'User logged out successfully' });
+});
+
+/* GET protected route */
 router.get('/protected', function(req, res, next) {
     // Extract token from Authorization header
     const token = req.headers.authorization && req.headers.authorization.split(' ')[1];
