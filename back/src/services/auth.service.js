@@ -1,26 +1,26 @@
 const User = require('../models/user.model.js');
-const {verifyPassword} = require('../utils/hash');
 const {generateAuthToken, verifyToken} = require('../utils/jwt');
-const {BadRequestError, UnauthorizedError} = require("../constants/error.constant");
+const {BadRequestError} = require("../constants/error.constant");
+const passport = require('passport');
 
-exports.login = async (email, password) => {
-    const user = await User.findOne({ email: email }).exec();
+exports.login = async (username, password) => {
+    const user = await User.findOne({ username: username }).exec();
     if (!user) {
         return new Promise((resolve, reject) => {
-            reject(new BadRequestError('Email is not registered'));
+            reject(new BadRequestError('Username is not registered'));
         });
     }
-    const isPasswordValid = verifyPassword(password, user.password);
-    if (!isPasswordValid) {
-        return new Promise((resolve, reject) => {
-            reject(new BadRequestError('Password is incorrect'));
-        });
-    }
-
-    // generate token
-    const token = generateAuthToken(user);
     return new Promise((resolve, reject) => {
-        resolve(token);
+        passport.authenticate('local', (err, user, info) => {
+            if (err) {
+                reject(new BadRequestError(err.message));
+            }
+            if (!user) {
+                reject(new BadRequestError('Wrong password'));
+            }
+            const token = generateAuthToken(user);
+            resolve(token);
+        })({body: {username: username, password: password}});
     });
 }
 

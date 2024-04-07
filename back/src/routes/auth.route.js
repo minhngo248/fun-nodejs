@@ -4,7 +4,7 @@ const authService = require('../services/auth.service');
 
 /* POST login */
 router.post('/', function(req, res, next) {
-    authService.login(req.body.email, req.body.password)
+    authService.login(req.body.username, req.body.password)
         .then(token => res.json({ token: token }))
         .catch(err => res.status(err.status).json({ message: err.message }));
 });

@@ -1,12 +1,11 @@
 /* User CRUD Service from MongoDB */
 const User = require('../models/user.model.js');
 const {NotFoundError, BadRequestError} = require("../constants/error.constant");
-const {hashPassword} = require('../utils/hash');
 
 // Get all users paginated
 exports.getAllUsers = (page, size) => {
     // get name and email only
-    const users = User.find({}, 'name email')
+    const users = User.find({}, 'name email role')
         .skip(page * size)
         .limit(size);
     return users;
@@ -15,7 +14,7 @@ exports.getAllUsers = (page, size) => {
 // Get user by id
 exports.getUserById = async (userId) => {
     // get name and email only
-    const user = await User.findById(userId, 'name email').exec();
+    const user = await User.findById(userId, 'name email role').exec();
     if (!user) {
         throw new NotFoundError('User not found');
     }
@@ -23,10 +22,10 @@ exports.getUserById = async (userId) => {
 }
 
 // Create a new user
-exports.createUser = async (name, email, password) => {
-    if (!name || !email || !password) {
+exports.createUser = async (username, name, email, password) => {
+    if (!username || !name || !email || !password) {
         return new Promise((resolve, reject) => {
-            reject(new BadRequestError('Missing required fields'));
+            reject(new BadRequestError('Missing required fields: username, name, email, password.'));
         });
     }
 
@@ -37,16 +36,20 @@ exports.createUser = async (name, email, password) => {
             reject(new BadRequestError('Email already exists'));
         });
     }
-
-    const hashedPassword = hashPassword(password);
-    const newUser = new User({
+    const payload = {
+        username: username,
         name: name,
-        email: email,
-        password: hashedPassword
-    });
+        email: email, 
+        role: "USER"
+    };
+    // using passport-local-mongoose
     // return _id of new user
-    newUser.save().then(r => console.log("User created successfully id: " + r._id));
     return new Promise((resolve, reject) => {
-        resolve(newUser._id);
+        User.register(payload, password, (err, user) => {
+            if (err) {
+                reject(new BadRequestError(err.message));
+            }
+            resolve(user._id);
+        });
     });
 }
