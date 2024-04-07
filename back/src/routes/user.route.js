@@ -22,7 +22,7 @@ router.get('/:id', preAuthMiddlewareAdminOrUser, function(req, res, next) {
 
 /* POST create a new user */
 router.post('/', function(req, res, next) {
-    userService.createUser(req.body.name, req.body.email, req.body.password)
+    userService.createUser(req.body.username, req.body.name, req.body.email, req.body.password)
         .then(id => res.status(201).json({ id: id, message: 'User created successfully'}))
         .catch(err => res.status(err.status).json({ message: err.message }));
 });

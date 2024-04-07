@@ -10,6 +10,10 @@ var usersRouter = require('./routes/user.route');
 var authRouter = require('./routes/auth.route');
 
 var app = express();
+var passport = require('passport');
+var session = require('express-session');
+
+const secret = process.env.JWT_SECRET || 'secret';
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -20,6 +24,28 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+
+app.use(session({
+  secret: secret, // Replace with a long, random string
+  resave: false,
+  saveUninitialized: false
+}));
+
+// Passport
+app.use(passport.initialize());
+app.use(passport.session(
+    { secret: secret }
+));
+
+const User = require('./models/user.model');
+
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
+
+const LocalStrategy = require('passport-local').Strategy;
+passport.use(new LocalStrategy(
+    User.authenticate(), // username, password
+    ));
 
 // CORS
 app.use(function(req, res, next) {
